@@ -44,12 +44,12 @@ class MainWindow(QtGui.QMainWindow):
             event.accept()
 
     def new(self):
-        x, xok = QtGui.QInputDialog.getInteger(self,
-                "Enter field width", "X:", 40, 2, 100, 1)
-        y, yok = QtGui.QInputDialog.getInteger(self,
-                "Enter field height", "Y:", 20, 2, 100, 1)
-        if xok and yok:
-            activeSubWindow = self.createSubWindow(x, y)
+        width, wok = QtGui.QInputDialog.getInteger(self,
+                "Enter field width", "Width:", 40, 2, 100, 1)
+        height, hok = QtGui.QInputDialog.getInteger(self,
+                "Enter field height", "Height:", 20, 2, 100, 1)
+        if wok and hok:
+            activeSubWindow = self.createSubWindow(width, height)
             activeSubWindow.new()
             activeSubWindow.show()
 
