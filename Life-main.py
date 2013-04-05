@@ -5,7 +5,6 @@ from PySide import QtCore, QtGui
 import random
 from numpy import *
 
-import Resources
 from Life import Life
 from Field import Field
 from SubWindow import SubWindow
@@ -94,6 +93,7 @@ class MainWindow(QtGui.QMainWindow):
         self.saveAct.setEnabled(not activeSubWindow.isSimulate())
         self.saveAsAct.setEnabled(not activeSubWindow.isSimulate())
         self.nextStepAct.setEnabled(not activeSubWindow.isSimulate())
+        self.setInfinityAct.setEnabled(not activeSubWindow.isSimulate())
 
     def reset(self):
         activeSubWindow = self.activeSubWindow()
