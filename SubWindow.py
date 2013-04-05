@@ -4,6 +4,7 @@
 from PySide import QtCore, QtGui
 from Life import Life
 from Field import Field
+from numpy import *
 
 class SubWindow(QtGui.QScrollArea):
     sequenceNumber = 1
@@ -22,11 +23,12 @@ class SubWindow(QtGui.QScrollArea):
         self.isUntitled = True
         widget = QtGui.QScrollArea()
         self.qp = QtGui.QPainter()
-        self.field = Field(width, height)
-        self.setWidget(self.field)
-        self.life = Life(width, height, False)
-        self.reset()
-        self.field.cells = self.life.cells
+        if width and height:
+            self.field = Field(width, height)
+            self.setWidget(self.field)
+            self.life = Life(width, height, False)
+            self.reset()
+            self.field.cells = self.life.cells
 
     def isSimulate(self):
         if self.timerId:
@@ -78,22 +80,38 @@ class SubWindow(QtGui.QScrollArea):
                     "Cannot read file %s:\n%s." % (fileName, file.errorString()))
             return False
         instr = QtCore.QTextStream(file)
-        y=0
         start = False
+        width = 0
+        lines = []
+
         while not instr.atEnd():
             line = instr.readLine()
+            if width < len(line):
+                width = len(line)
             if line[0] != '#':
                 start = True
-                x = 0
-                for char in line:
-                    if char == '*':
-                        self.life.cells[x,y] = True
-                    else:
-                        self.life.cells[x,y] = False
-                    x += 1
-                y += 1
+                lines.append(line)
             if line[0] == '#' and start:
                 break
+
+        height = len(lines)   
+        if not width or not height:
+            return False 
+        self.width = width
+        self.height = height
+        self.field = Field(width, height)
+        self.setWidget(self.field)
+        self.life = Life(width, height, False)
+        self.field.cells = self.life.cells
+        y=0
+        for line in lines:
+            x = 0
+            for char in line:
+                if char == '*':
+                    self.life.cells[x,y] = True
+                x += 1
+            y += 1
+
         self.field.update()        
         self.setCurrentFile(fileName)
         return True

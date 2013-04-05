@@ -6,24 +6,31 @@ class Life:
 
     cells = []
 
-    def __init__(self,width=30,height=30,infinityField = True):
-        self.reset(width,height,infinityField)
+    def __init__(self, width, height, isInfinity=True):
+        self.reset(width,height,isInfinity)
         self.genNumber = 0;
 
     def getGenNumber(self):
         return self.genNumber
 
-    def reset(self,width=30,height=30,infinityField = True):
-        self.fieldSize = width+height
-        self.infinityField = infinityField
-        self.cellsCount = self.fieldSize*self.fieldSize
-        self.cells = arange(self.cellsCount).reshape(self.fieldSize,self.fieldSize)
+    def setInfinity(self, state):
+        self.isInfinity = state
+
+    def getInfinity(self):
+        return self.isInfinity
+
+    def reset(self, width, height, isInfinity=True):
+        self.width = width
+        self.height = height
+        self.isInfinity = isInfinity
+        self.cellsCount = self.width*self.height
+        self.cells = arange(self.cellsCount).reshape(self.width,self.height)
         self.cells.fill(False)
         return self.cells
 
     def simulate(self):
         self.ncells = []
-        self.ncells = arange(self.cellsCount).reshape(self.fieldSize,self.fieldSize)
+        self.ncells = arange(self.cellsCount).reshape(self.width,self.height)
         self.ncells.fill(False)
         x = 0
         for cells in self.cells:            
@@ -32,10 +39,10 @@ class Life:
                 self.ncells[x,y] = cell
 
                 tx = x+1
-                if tx < self.fieldSize:
+                if tx < self.width:
                     nextCell = self.cells[tx,y]
                 else:
-                    if self.infinityField:
+                    if self.isInfinity:
                         nextCell = self.cells[0,y]
                     else:
                         nextCell = False
@@ -44,7 +51,7 @@ class Life:
                 if tx >= 0:
                     prevCell = self.cells[tx,y]
                 else:
-                    if self.infinityField:
+                    if self.isInfinity:
                         prevCell = self.cells[-1,y]
                     else:
                         prevCell = False
@@ -53,7 +60,7 @@ class Life:
                 if ty >= 0:
                     topCell = self.cells[x,ty]
                 else:
-                    if self.infinityField:
+                    if self.isInfinity:
                         topCell = self.cells[x,-1]
                     else:
                         topCell = False
@@ -64,7 +71,7 @@ class Life:
                     if tx >=0:
                         topprevCell = self.cells[tx,ty]
                     else:
-                        if self.infinityField:
+                        if self.isInfinity:
                             topprevCell = self.cells[-1,ty]
                         else:
                             topprevCell = False
@@ -73,7 +80,7 @@ class Life:
                     if tx >=0:
                         topprevCell = self.cells[tx,-1]
                     else:
-                        if self.infinityField:
+                        if self.isInfinity:
                             topprevCell = self.cells[-1,-1]
                         else:
                             topprevCell = False
@@ -81,60 +88,60 @@ class Life:
                 ty = y-1
                 if ty >= 0:
                     tx = x+1
-                    if tx < self.fieldSize:
+                    if tx < self.width:
                         topnextCell = self.cells[tx,ty]
                     else:
-                        if self.infinityField:
+                        if self.isInfinity:
                             topnextCell = self.cells[0,ty]
                         else:
                             topnextCell = False
                 else:
                     tx = x+1
-                    if tx < self.fieldSize:
+                    if tx < self.width:
                         topnextCell = self.cells[tx,-1]
                     else:
-                        if self.infinityField:
+                        if self.isInfinity:
                             topnextCell = self.cells[0,-1]
                         else:
                             topnextCell = False
 
 
                 ty = y+1
-                if ty < self.fieldSize:
+                if ty < self.height:
                     btmCell = self.cells[x,ty]
                 else:
-                    if self.infinityField:
+                    if self.isInfinity:
                         btmCell = self.cells[x,0]
                     else:
                         btmCell = False
 
                 ty = y+1
-                if ty < self.fieldSize:
+                if ty < self.height:
                     tx = x+1
-                    if tx < self.fieldSize:
+                    if tx < self.width:
                         btmpnexCell = self.cells[tx,ty]
                     else:
-                        if self.infinityField:
+                        if self.isInfinity:
                             btmpnexCell = self.cells[0,ty]
                         else:
                             btmpnexCell = False
                 else:
                     tx = x+1
-                    if tx < self.fieldSize:
+                    if tx < self.width:
                         btmpnexCell = self.cells[tx,0]
                     else:
-                        if self.infinityField:
+                        if self.isInfinity:
                             btmpnexCell = self.cells[0,0]
                         else:
                             btmpnexCell = False
 
                 ty = y+1
-                if ty < self.fieldSize:
+                if ty < self.height:
                     tx = x-1
                     if tx >=0:
                         btmprevCell = self.cells[tx,ty]
                     else:
-                        if self.infinityField:
+                        if self.isInfinity:
                             btmprevCell = self.cells[-1,ty]
                         else:
                             btmprevCell = False
@@ -143,7 +150,7 @@ class Life:
                     if tx >=0:
                         btmprevCell = self.cells[tx,0]
                     else:
-                        if self.infinityField:
+                        if self.isInfinity:
                             btmprevCell = self.cells[-1,0]
                         else:
                             btmprevCell = False

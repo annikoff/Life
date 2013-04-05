@@ -24,13 +24,15 @@ class MainWindow(QtGui.QMainWindow):
 
         self.playIcon = QtGui.QIcon.fromTheme("media-playback-start")
         self.pauseIcon =  QtGui.QIcon.fromTheme("media-playback-pause")
-        self.nextStepIcon = QtGui.QIcon.fromTheme("media-seek-forward")
+        self.nextStepIcon = QtGui.QIcon.fromTheme("media-seek-forward")        
+        self.isInfinityIcon = QtGui.QIcon.fromTheme("document-revert")
 
         self.createActions()
         self.createMenus()
         self.createStatusBar()
         self.createToolBars()
         self.updateMenus()
+        self.readSettings()
 
         self.setWindowTitle("The Game of Life")
         self.setUnifiedTitleAndToolBarOnMac(True)
@@ -40,15 +42,17 @@ class MainWindow(QtGui.QMainWindow):
         if self.activeSubWindow():
             event.ignore()
         else:
-            #self.writeSettings()
+            self.writeSettings()
             event.accept()
 
     def new(self):
         width, wok = QtGui.QInputDialog.getInteger(self,
-                "Enter field width", "Width:", 40, 2, 100, 1)
+                "Enter field width", "Width:", 50, 2, 100, 1)
+        if not wok:
+            return
         height, hok = QtGui.QInputDialog.getInteger(self,
-                "Enter field height", "Height:", 20, 2, 100, 1)
-        if wok and hok:
+                "Enter field height", "Height:", 50, 2, 100, 1)
+        if hok:
             activeSubWindow = self.createSubWindow(width, height)
             activeSubWindow.new()
             activeSubWindow.show()
@@ -60,7 +64,7 @@ class MainWindow(QtGui.QMainWindow):
             if existing:
                 self.mdiArea.setActiveSubWindow(existing)
                 return
-            activeSubWindow = self.createSubWindow()
+            activeSubWindow = self.createSubWindow(0, 0)
             if activeSubWindow.loadFile(fileName):
                 self.statusMessage.setText("Game loaded")
                 activeSubWindow.show()
@@ -103,6 +107,11 @@ class MainWindow(QtGui.QMainWindow):
         if activeSubWindow:
             if not activeSubWindow.isSimulate():
                 activeSubWindow.nextStep()
+
+    def setInfinity(self):
+        activeSubWindow = self.activeSubWindow()
+        if activeSubWindow:
+            activeSubWindow.life.setInfinity(not activeSubWindow.life.getInfinity())
 
     def confirmMessage(self, title, message):    
         reply = QtGui.QMessageBox.question(self, title, message,
@@ -200,8 +209,13 @@ class MainWindow(QtGui.QMainWindow):
                 statusTip="Move the focus to the previous window",
                 triggered=self.mdiArea.activatePreviousSubWindow)
 
+        self.setInfinityAct = QtGui.QAction(self.isInfinityIcon, "Is &infinity field", 
+                self, statusTip="Set state of filed",
+                triggered=self.setInfinity)
+
         self.separatorAct = QtGui.QAction(self)
         self.separatorAct.setSeparator(True)
+        self.nextAct.setCheckable(True)
 
     def createMenus(self):
         self.fileMenu = self.menuBar().addMenu("&File")
@@ -216,6 +230,9 @@ class MainWindow(QtGui.QMainWindow):
         self.fileMenu.addAction(self.playStopAct)
         self.fileMenu.addAction(self.nextStepAct)
         self.fileMenu.addAction(self.resetAct)
+        self.fileMenu.addAction(self.setInfinityAct)
+        self.setInfinityAct.setCheckable(True)
+        self.setInfinityAct.setChecked(True)
 
         self.windowMenu = self.menuBar().addMenu("&Window")
         self.updateWindowMenu()
@@ -239,6 +256,8 @@ class MainWindow(QtGui.QMainWindow):
         self.playStopAct.setEnabled(hasSubWindow)
         self.speedSlider.setEnabled(hasSubWindow)
         self.nextStepAct.setEnabled(hasSubWindow)
+        self.setInfinityAct.setEnabled(hasSubWindow)
+
         if hasSubWindow:
             self.speedSlider.setValue(activeSubWindow.delay)
             if activeSubWindow.isSimulate():
@@ -267,22 +286,6 @@ class MainWindow(QtGui.QMainWindow):
         self.windowMenu.addAction(self.previousAct)
         self.windowMenu.addAction(self.separatorAct)
 
-        windows = self.mdiArea.subWindowList()
-        self.separatorAct.setVisible(len(windows) != 0)
-
-        for i, window in enumerate(windows):
-            activeSubWindow = window.widget()
-
-            text = "%d %s" % (i + 1, activeSubWindow.userFriendlyCurrentFile())
-            if i < 9:
-                text = '&' + text
-
-            action = self.windowMenu.addAction(text)
-            action.setCheckable(True)
-            action.setChecked(activeSubWindow == self.activeSubWindow())
-            action.triggered.connect(self.windowMapper.map)
-            self.windowMapper.setMapping(action, window)
-
     def createStatusBar(self):
         self.speedLabel = QtGui.QLabel()
         self.speedLabel.setText("Speed: 50 ")
@@ -308,6 +311,7 @@ class MainWindow(QtGui.QMainWindow):
         self.gameToolBar.addAction(self.playStopAct)
         self.gameToolBar.addAction(self.nextStepAct)
         self.gameToolBar.addAction(self.resetAct)
+        self.gameToolBar.addAction(self.setInfinityAct)
         self.gameToolBar.addSeparator()
  
     def changeSpeed(self,speed):
@@ -321,6 +325,18 @@ class MainWindow(QtGui.QMainWindow):
         if activeSubWindow:
             return activeSubWindow.widget()
         return None
+
+    def writeSettings(self):
+        settings = QtCore.QSettings('MainWindow', 'The Game of Life')
+        settings.setValue('pos', self.pos())
+        settings.setValue('size', self.size())
+
+    def readSettings(self):
+        settings = QtCore.QSettings('MainWindow', 'The Game of Life')
+        pos = settings.value('pos', QtCore.QPoint(200, 200))
+        size = settings.value('size', QtCore.QSize(400, 400))
+        self.move(pos)
+        self.resize(size)
 
 if __name__ == '__main__':
 
