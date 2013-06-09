@@ -32,7 +32,6 @@ class MainWindow(QtGui.QMainWindow):
         self.createToolBars()
         self.updateMenus()
         self.readSettings()
-
         self.setWindowTitle("The Game of Life")
         self.setUnifiedTitleAndToolBarOnMac(True)
 

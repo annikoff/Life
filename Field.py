@@ -15,11 +15,11 @@ class Field(QtGui.QLabel):
         self.height = height
         self.setGeometry(0,0,(self.width*10)+10,(self.height*10)+10)
 
-    def paintEvent(self,event):
+    def paintEvent(self, event):
         painter = QtGui.QPainter(self)
         self.drawField(painter)
 
-    def drawField(self,painter):
+    def drawField(self, painter):
         painter.setPen('#FFFFFF')
         painter.setBrush(QtGui.QColor('#FFFFFF'))
         painter.drawRect(5,5,self.width*10,self.height*10)
